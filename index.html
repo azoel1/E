@@ -1,34 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Notification Receiver</title>
-</head>
+<html>
 <body>
-    <h1>Notification Receiver Ready</h1>
+    <button onclick="navigator.serviceWorker.register('sw.js')">Register Worker</button>
     <button onclick="requestPerm()">Enable Notifications</button>
 
     <script>
-        // 1. Function to request permission (Must be called by a user click)
-        function requestPerm() {
-            Notification.requestPermission().then(permission => {
-                if (permission === 'granted') {
-                    alert("Permissions granted!");
-                }
-            });
-        }
+        function requestPerm() { Notification.requestPermission(); }
 
-        // 2. The BroadcastChannel listener (The "API" part)
+        // Connect to the service worker
+        navigator.serviceWorker.register('sw.js');
+
         const channel = new BroadcastChannel('game_notifications');
-
-        channel.onmessage = (event) => {
-            if (Notification.permission === 'granted') {
-                new Notification("Game Alert!", { 
-                    body: event.data,
-                    requireInteraction: true // Forces the notification to stay until swiped
-                });
-            } else {
-                console.log("Permission not granted.");
+        channel.onmessage = async (event) => {
+            const registration = await navigator.serviceWorker.getRegistration();
+            if (registration) {
+                // Pass the message to the Service Worker
+                registration.active.postMessage(event.data);
             }
         };
     </script>
