@@ -4,6 +4,17 @@
     <button id="notifyBtn">Trigger Real Notification</button>
 
     <script>
+      // This is the "API" call you make from your game
+const channel = new BroadcastChannel('game_notifications');
+
+// Whenever your game triggers an event, just call this:
+function sendNotification(msg) {
+  channel.postMessage(msg);
+}
+
+// Example usage:
+sendNotification("You just leveled up!");
+        
         document.getElementById('notifyBtn').onclick = async () => {
             // Request permission
             const permission = await Notification.requestPermission();
@@ -19,5 +30,7 @@
             }
         };
     </script>
+    
+    
 </body>
 </html>
