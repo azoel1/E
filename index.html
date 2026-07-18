@@ -1,36 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Notification Receiver</title>
+</head>
 <body>
-    <button id="notifyBtn">Trigger Real Notification</button>
+    <h1>Notification Receiver Ready</h1>
+    <button onclick="requestPerm()">Enable Notifications</button>
 
     <script>
-      // This is the "API" call you make from your game
-const channel = new BroadcastChannel('game_notifications');
+        // 1. Function to request permission (Must be called by a user click)
+        function requestPerm() {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    alert("Permissions granted!");
+                }
+            });
+        }
 
-// Whenever your game triggers an event, just call this:
-function sendNotification(msg) {
-  channel.postMessage(msg);
-}
+        // 2. The BroadcastChannel listener (The "API" part)
+        const channel = new BroadcastChannel('game_notifications');
 
-// Example usage:
-sendNotification("You just leveled up!");
-        
-        document.getElementById('notifyBtn').onclick = async () => {
-            // Request permission
-            const permission = await Notification.requestPermission();
-            
-            if (permission === 'granted') {
-                // This triggers the real system notification
-                new Notification("System Alert", {
-                    body: "This is a real notification from your browser!",
-                    icon: 'https://cdn-icons-png.flaticon.com/512/1827/1827361.png'
+        channel.onmessage = (event) => {
+            if (Notification.permission === 'granted') {
+                new Notification("Game Alert!", { 
+                    body: event.data,
+                    requireInteraction: true // Forces the notification to stay until swiped
                 });
             } else {
-                alert("Permission denied");
+                console.log("Permission not granted.");
             }
         };
     </script>
-    
-    
 </body>
 </html>
